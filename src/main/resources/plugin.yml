@@ -1,0 +1,16 @@
+name: Broadcast
+main: com.mengcraft.broadcast.Main
+version: ${project.version}
+author: caoli5288
+
+commands:
+  broadcast:
+    description: None.
+    permission: broadcast.admin
+
+permissions:
+  broadcast.admin:
+    description: None.
+    default: op
+
+depend: [SimpleORM, Mark]
