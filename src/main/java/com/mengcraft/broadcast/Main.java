@@ -1,9 +1,9 @@
 package com.mengcraft.broadcast;
 
-import com.mengcraft.simpleorm.DatabaseException;
 import com.mengcraft.simpleorm.EbeanHandler;
 import com.mengcraft.simpleorm.EbeanManager;
 import com.wodogs.mc.mark.Mark;
+import lombok.SneakyThrows;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -17,22 +17,19 @@ import static com.mengcraft.broadcast.CollectionUtil.forEach;
 public class Main extends JavaPlugin {
 
     private final Mark mark = Mark.DEFAULT;
+    private EbeanHandler dataSource;
 
-    @Override
+    @SneakyThrows
     public void onEnable() {
         saveDefaultConfig();
 
-        EbeanHandler db = EbeanManager.DEFAULT.getHandler(this);
-        if (db.isNotInitialized()) {
-            db.define(Broadcast.class);
-            try {
-                db.initialize();
-            } catch (Exception e) {
-                throw new DatabaseException(e);
-            }
+        dataSource = EbeanManager.DEFAULT.getHandler(this);
+        if (dataSource.isNotInitialized()) {
+            dataSource.define(Broadcast.class);
+            dataSource.initialize();
         }
-        db.install();
-        db.reflect();
+
+        dataSource.install();
 
         BroadcastTask task = new BroadcastTask(this);
         task.update();
@@ -45,7 +42,7 @@ public class Main extends JavaPlugin {
     }
 
     public List<Broadcast> fetchList() {
-        List<Broadcast> fetched = getDatabase().find(Broadcast.class).findList();
+        List<Broadcast> fetched = dataSource.find(Broadcast.class).findList();
         List<Broadcast> output = new ArrayList<>();
         forEach(fetched, b -> is(b), b -> {
             output.add(b);
